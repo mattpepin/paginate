@@ -481,7 +481,7 @@ class Page(list):
         # Insert dots if there are pages between the first page
         # and the currently displayed page range
         max_delta = 1 if self.always_show_first else 0
-        if leftmost_page - self.first_page > max_delta
+        if leftmost_page - self.first_page > max_delta:
             # Wrap in a SPAN tag if dotdot_attr is set
             text = self.symbol_dotdot
             if self.dotdot_attr:
@@ -504,7 +504,7 @@ class Page(list):
         # Insert dots if there are pages between the displayed
         # page numbers and the end of the page range
         max_delta = 1 if self.always_show_last else 0
-        if self.last_page - rightmost_page > 0:
+        if self.last_page - rightmost_page > max_delta:
             # Wrap in a SPAN tag if dotdot_attr is set
             text = self.symbol_dotdot
             if self.dotdot_attr:
