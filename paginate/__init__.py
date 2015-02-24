@@ -307,7 +307,8 @@ class Page(list):
 
     def pager(self, format='~2~', url=None, show_if_single_page=False, separator=' ',
         symbol_first='&lt;&lt;', symbol_last='&gt;&gt;', symbol_previous='&lt;', symbol_next='&gt;',
-        link_attr=dict(), curpage_attr=dict(), dotdot_attr=dict()):
+        symbol_dotdot='..', link_attr=dict(), curpage_attr=dict(), dotdot_attr=dict(),
+        always_show_first=True, always_show_last=True):
         """
         Return string with links to other pages (e.g. '1 .. 5 6 7 [8] 9 10 11 .. 50').
 
@@ -362,6 +363,11 @@ class Page(list):
             String to be displayed as the text for the $link_next link above.
 
             Default: '&gt;' (>)
+            
+        symbol_dotdot
+            String to be displayed as the text for ellipsis.
+            
+            Default: '..'
 
         separator:
             String that is used to separate page links/numbers in the above range of pages.
@@ -395,14 +401,23 @@ class Page(list):
 
             Example: { 'style':'color: #808080' }
             Example: { 'class':'pager_dotdot' }
+            
+        always_show_first (optional)
+            Always show the first page number
+            
+        always_show_last (optional)
+            Always show the last page number
 
         Additional keyword arguments are used as arguments in the links.
         """
         self.curpage_attr = curpage_attr
         self.separator = separator
+        self.symbol_dotdot = symbol_dotdot
         self.link_attr = link_attr
         self.dotdot_attr = dotdot_attr
         self.url = url
+        self.always_show_first = always_show_first
+        self.always_show_last = always_show_last
         
         # Don't show navigator if there is no more than one page
         if self.page_count == 0 or (self.page_count == 1 and not show_if_single_page):
@@ -460,14 +475,14 @@ class Page(list):
 
         # Create a link to the first page (unless we are on the first page
         # or there would be no need to insert '..' spacers)
-        if self.page != self.first_page and self.first_page < leftmost_page:
+        if self.page != self.first_page and self.first_page < leftmost_page and self.always_show_first:
             nav_items.append( self._pagerlink(self.first_page, self.first_page) )
 
         # Insert dots if there are pages between the first page
         # and the currently displayed page range
         if leftmost_page - self.first_page > 1:
             # Wrap in a SPAN tag if dotdot_attr is set
-            text = '..'
+            text = self.symbol_dotdot
             if self.dotdot_attr:
                 text = make_html_tag('span', **self.dotdot_attr) + text + '</span>'
             nav_items.append(text)
@@ -489,14 +504,14 @@ class Page(list):
         # page numbers and the end of the page range
         if self.last_page - rightmost_page > 1:
             # Wrap in a SPAN tag if dotdot_attr is set
-            text = '..'
+            text = self.symbol_dotdot
             if self.dotdot_attr:
                 text = make_html_tag('span', **self.dotdot_attr) + text + '</span>'
             nav_items.append(text)
 
         # Create a link to the very last page (unless we are on the last
         # page or there would be no need to insert '..' spacers)
-        if self.page != self.last_page and rightmost_page < self.last_page:
+        if self.page != self.last_page and rightmost_page < self.last_page and self.always_show_last:
             nav_items.append( self._pagerlink(self.last_page, self.last_page) )
 
         return self.separator.join(nav_items)
