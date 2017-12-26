@@ -307,7 +307,7 @@ class Page(list):
 
     def pager(self, format='~2~', url=None, show_if_single_page=False, separator=' ',
         symbol_first='&lt;&lt;', symbol_last='&gt;&gt;', symbol_previous='&lt;', symbol_next='&gt;',
-        symbol_dotdot='..', link_attr=dict(), curpage_attr=dict(), dotdot_attr=dict(),
+        symbol_dotdot='..', link_attr=None, curpage_attr=dict(), dotdot_attr=dict(),
         always_show_first=True, always_show_last=True):
         """
         Return string with links to other pages (e.g. '1 .. 5 6 7 [8] 9 10 11 .. 50').
@@ -413,7 +413,7 @@ class Page(list):
         self.curpage_attr = curpage_attr
         self.separator = separator
         self.symbol_dotdot = symbol_dotdot
-        self.link_attr = link_attr
+        self.link_attr = link_attr or {'class': 'page-link'}
         self.dotdot_attr = dotdot_attr
         self.url = url
         self.always_show_first = always_show_first
@@ -485,7 +485,8 @@ class Page(list):
             # Wrap in a SPAN tag if dotdot_attr is set
             text = self.symbol_dotdot
             if self.dotdot_attr:
-                text = make_html_tag('span', **self.dotdot_attr) + text + '</span>'
+                text = make_html_tag('span', **self.dotdot_attr) + text + '</li>'
+                text = make_html_tag('li', _class='page-item') + text + '</li>'
             nav_items.append(text)
 
         for thispage in range(leftmost_page, rightmost_page+1):
@@ -494,7 +495,8 @@ class Page(list):
                 # Wrap in a SPAN tag if curpage_attr is set
                 text = str(thispage)
                 if self.curpage_attr:
-                    text = make_html_tag('span', **self.curpage_attr) + text + '</span>'
+                    text = make_html_tag('span', _class='page-link') + text + '</span>'
+                    text = make_html_tag('li', **self.curpage_attr) + text + '</li>'
                 nav_items.append(text)
             # Otherwise create just a link to that page
             else:
@@ -508,7 +510,8 @@ class Page(list):
             # Wrap in a SPAN tag if dotdot_attr is set
             text = self.symbol_dotdot
             if self.dotdot_attr:
-                text = make_html_tag('span', **self.dotdot_attr) + text + '</span>'
+                text = make_html_tag('span', **self.dotdot_attr) + text + '</li>'
+                text = make_html_tag('li', _class='page-item') + text + '</li>'
             nav_items.append(text)
 
         # Create a link to the very last page (unless we are on the last
@@ -542,7 +545,8 @@ class Page(list):
         """
         target_url = self.url_maker(page_number)
         a_tag = make_html_tag('a', text=text, href=target_url, **self.link_attr)
-        return a_tag
+        li_tag = make_html_tag('li', text=a_tag, _class='page-item')
+        return li_tag
 
 
 def make_html_tag(tag, text=None, **params):
